@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost and Found - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            background-color: #222;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: #222;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #2196F3;
+        }
+        
+        .form-container {
+            padding: 30px;
+            background-color: #333;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2196F3;
+            font-size: 20px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid #555;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-bottom-color: #2196F3;
+        }
+        
+        .input-field::placeholder {
+            color: #777;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background-color: #0d8aee;
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+        
+        .forgot-password a {
+            color: #777;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .forgot-password a:hover {
+            color: #2196F3;
+        }
+        
+        .signup-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="header">
+            LOST AND FOUND THINGS MANAGEMENT
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" id="login-tab">LOGIN</div>
+            <div class="tab" id="signup-tab">SIGN UP</div>
+        </div>
+        
+        <div class="form-container">
+            <form id="login-form" class="login-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" class="input-field" placeholder="Email" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="input-field" placeholder="Password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">LOGIN</button>
+                
+                <div class="forgot-password">
+                    <a href="#">Forgot Password?</a>
+                </div>
+            </form>
+            
+            <form id="signup-form" class="signup-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" class="input-field" placeholder="Full Name" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" class="input-field" placeholder="Email" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" class="input-field" placeholder="Phone Number" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="input-field" placeholder="Password" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="input-field" placeholder="Confirm Password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">SIGN UP</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginTab = document.getElementById('login-tab');
+            const signupTab = document.getElementById('signup-tab');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            
+            loginTab.addEventListener('click', function() {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            });
+            
+            signupTab.addEventListener('click', function() {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            });
+            
+            // Form submission handling
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                window.location.href = 'index.html';
+            });
+            
+            signupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Account created successfully!');
+                loginTab.click();
+            });
+        });
+    </script>
+</body>
+</html>

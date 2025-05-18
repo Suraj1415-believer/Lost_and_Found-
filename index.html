@@ -1,0 +1,1403 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost and Found Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-container, .items-container, .schema-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 100px;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .item-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .lost { border-left: 5px solid #dc3545; }
+        .found { border-left: 5px solid #28a745; }
+        .tabs {
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            background-color: #e0e0e0;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .schema-table th, .schema-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .schema-table th {
+            background-color: #f2f2f2;
+        }
+        .schema-table caption {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .login-register {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        .login-register button {
+            margin-left: 10px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        
+        .user-info {
+            display: none;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e8f0fe;
+            border-radius: 4px;
+        }
+        
+        /* Admin Dashboard Styles */
+        .admin-dashboard {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f2f5;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .admin-header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-nav {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            margin-left: 20px;
+        }
+        
+        .admin-user {
+            display: flex;
+            align-items: center;
+        }
+        
+        .admin-user button {
+            margin-left: 15px;
+            background-color: #f44336;
+        }
+        
+        .admin-sidebar {
+            width: 250px;
+            height: calc(100% - 60px);
+            background-color: white;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .admin-profile {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #1a73e8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .admin-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .admin-menu li {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .admin-menu li:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .admin-menu li.active {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            border-left: 3px solid #1a73e8;
+        }
+        
+        .admin-content {
+            margin-left: 250px;
+            padding: 20px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+        }
+        
+        .admin-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h4 {
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .admin-table th, .admin-table td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .admin-table th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        
+        .admin-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .admin-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-buttons button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .view-btn {
+            background-color: #2196F3;
+        }
+        
+        .edit-btn {
+            background-color: #FFC107;
+        }
+        
+        .delete-btn {
+            background-color: #F44336;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .page-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .page-buttons button {
+            padding: 5px 10px;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        
+        .page-buttons button.active {
+            background-color: #1a73e8;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Lost and Found Portal</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="login-register">
+            <button onclick="showLoginModal()">Login</button>
+            <button onclick="showRegisterModal()">Register</button>
+            <button onclick="showAdminLogin()">Admin</button>
+        </div>
+
+        <div class="form-container">
+            <h2>Report an Item</h2>
+            <form id="itemForm">
+                <form action="submit_item.php" method="post">
+
+                <div class="form-group">
+                    <label for="type">Type:</label>
+                    <select name="type" id="type" required>
+                        <option value="lost">Lost Item</option>
+                        <option value="found">Found Item</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" name="itemName" id="itemName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select name="category" id="category" required>
+                        <option value="electronics">Electronics</option>
+                        <option value="documents">Documents</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" name="location" id="location" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="latitude">Latitude:</label>
+                    <input type="number" name="latitude" id="latitude" step="0.000001" placeholder="Enter latitude coordinates">
+                </div>
+
+                <div class="form-group">
+                    <label for="longitude">Longitude:</label>
+                    <input type="number" name="longitude" id="longitude" step="0.000001" placeholder="Enter longitude coordinates">
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" name="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea name="description" id="description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="imageUrl">Image URL:</label>
+                    <input type="url" name="imageUrl" id="imageUrl" placeholder="Enter image URL">
+                </div>
+
+                <div class="form-group" id="proofQuestionsGroup" style="display: none;">
+                    <label for="proofQuestions">Proof Questions:</label>
+                    <textarea name="proofQuestions" id="proofQuestions" placeholder="Enter questions that can help identify the true owner"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactInfo">Contact Information:</label>
+                    <input type="text" name="contactInfo" id="contactInfo" required>
+                </div>
+
+                <button type="submit">Submit Report</button>
+            </form>
+        </div>
+
+        <div class="items-container">
+            <h2>Reported Items</h2>
+            <div class="tabs">
+                <button class="tab-button active" onclick="filterItems('all')">All Items</button>
+                <button class="tab-button" onclick="filterItems('lost')">Lost Items</button>
+                <button class="tab-button" onclick="filterItems('found')">Found Items</button>
+            </div>
+            <div class="items-grid" id="itemsGrid">
+                <!-- Items will be displayed here -->
+            </div>
+        </div>
+
+        <div class="schema-container">
+            <h2>Database Schema</h2>
+            <div class="nav-tabs">
+                <button class="tab-button active" onclick="showTable('users')">Users</button>
+                <button class="tab-button" onclick="showTable('lost')">Lost Items</button>
+                <button class="tab-button" onclick="showTable('found')">Found Items</button>
+                <button class="tab-button" onclick="showTable('admin')">Admins</button>
+            </div>
+            
+            <div id="users-table" class="schema-table-container">
+                <table class="schema-table">
+                    <caption>Users Table</caption>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Constraints</th>
+                    </tr>
+                    <tr><td>user_id</td><td>INT</td><td>PRIMARY KEY AUTO_INCREMENT</td></tr>
+                    <tr><td>name</td><td>VARCHAR(100)</td><td></td></tr>
+                    <tr><td>email</td><td>VARCHAR(255)</td><td>UNIQUE</td></tr>
+                    <tr><td>phone_number</td><td>VARCHAR(15)</td><td>UNIQUE</td></tr>
+                    <tr><td>password_hash</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>trust_score</td><td>FLOAT</td><td></td></tr>
+                    <tr><td>is_verified</td><td>BOOLEAN</td><td></td></tr>
+                </table>
+            </div>
+            
+            <div id="lost-table" class="schema-table-container" style="display:none;">
+                <table class="schema-table">
+                    <caption>Lost_Items Table</caption>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Constraints</th>
+                    </tr>
+                    <tr><td>item_id</td><td>INT</td><td>PRIMARY KEY AUTO_INCREMENT</td></tr>
+                    <tr><td>user_id</td><td>INT</td><td>FOREIGN KEY (Users.user_id)</td></tr>
+                    <tr><td>item_name</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>description</td><td>TEXT</td><td></td></tr>
+                    <tr><td>category</td><td>VARCHAR(100)</td><td></td></tr>
+                    <tr><td>lost_date</td><td>DATE</td><td></td></tr>
+                    <tr><td>lost_location</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>latitude</td><td>DECIMAL(9,6)</td><td></td></tr>
+                    <tr><td>longitude</td><td>DECIMAL(9,6)</td><td></td></tr>
+                    <tr><td>image_url</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>proof_questions</td><td>TEXT</td><td></td></tr>
+                    <tr><td>status</td><td>ENUM</td><td>('Open', 'Matched', 'Resolved')</td></tr>
+                </table>
+            </div>
+            
+            <div id="found-table" class="schema-table-container" style="display:none;">
+                <table class="schema-table">
+                    <caption>Found_Items Table</caption>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Constraints</th>
+                    </tr>
+                    <tr><td>found_id</td><td>INT</td><td>PRIMARY KEY AUTO_INCREMENT</td></tr>
+                    <tr><td>user_id</td><td>INT</td><td>FOREIGN KEY (Users.user_id)</td></tr>
+                    <tr><td>item_name</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>description</td><td>TEXT</td><td></td></tr>
+                    <tr><td>category</td><td>VARCHAR(100)</td><td></td></tr>
+                    <tr><td>found_date</td><td>DATE</td><td></td></tr>
+                    <tr><td>found_location</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>latitude</td><td>DECIMAL(9,6)</td><td></td></tr>
+                    <tr><td>longitude</td><td>DECIMAL(9,6)</td><td></td></tr>
+                    <tr><td>image_url</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>status</td><td>ENUM</td><td>('Open', 'Matched', 'Returned')</td></tr>
+                </table>
+            </div>
+            
+            <div id="admin-table" class="schema-table-container" style="display:none;">
+                <table class="schema-table">
+                    <caption>Admins Table</caption>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Constraints</th>
+                    </tr>
+                    <tr><td>admin_id</td><td>INT</td><td>PRIMARY KEY AUTO_INCREMENT</td></tr>
+                    <tr><td>username</td><td>VARCHAR(100)</td><td></td></tr>
+                    <tr><td>password_hash</td><td>VARCHAR(255)</td><td></td></tr>
+                    <tr><td>role</td><td>ENUM</td><td>('Super Admin', 'Moderator')</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard">
+        <div class="admin-header">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-nav">
+                <span>LFS / ADMIN</span>
+                <div class="admin-user">
+                    <span id="adminUserName">Admin</span>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-sidebar">
+            <div class="admin-profile">
+                <div class="admin-avatar">A</div>
+                <div class="admin-info">
+                    <span id="adminName">Admin</span>
+                    <small>Super Admin</small>
+                </div>
+            </div>
+            <ul class="admin-menu">
+                <li class="active" onclick="showAdminTab('dashboard')">Dashboard</li>
+                <li onclick="showAdminTab('users')">Registered Users</li>
+                <li onclick="showAdminTab('lostItems')">Lost Items</li>
+                <li onclick="showAdminTab('foundItems')">Found Items</li>
+                <li onclick="showAdminTab('reports')">Reports</li>
+                <li onclick="showAdminTab('pages')">Pages</li>
+            </ul>
+        </div>
+
+        <div class="admin-content">
+            <div id="dashboard-section" class="admin-section">
+                <h3>Dashboard Overview</h3>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h4>Total Users</h4>
+                        <p id="totalUsers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Lost Items</h4>
+                        <p id="totalLost">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Found Items</h4>
+                        <p id="totalFound">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Resolved Cases</h4>
+                        <p id="totalResolved">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="users-section" class="admin-section" style="display:none;">
+                <div class="section-header">
+                    <h3>Registered Users</h3>
+                    <div class="section-actions">
+                        <div class="show-entries">
+                            Show <select id="userEntriesCount">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select> entries
+                        </div>
+                        <div class="search-box">
+                            Search: <input type="text" id="userSearchInput">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Name</th>
+                                <th>Mobile Number</th>
+                                <th>User Registration Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- User data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <span>Showing 1 to 10 of 10 entries</span>
+                    <div class="page-buttons">
+                        <button>Previous</button>
+                        <button class="active">1</button>
+                        <button>Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="lostItems-section" class="admin-section" style="display:none;">
+                <h3>Lost Items</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="lostItemsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Lost items data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="foundItems-section" class="admin-section" style="display:none;">
+                <h3>Found Items</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="foundItemsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Found items data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="reports-section" class="admin-section" style="display:none;">
+                <h3>Reports</h3>
+                <p>Reports and analytics will be displayed here.</p>
+            </div>
+
+            <div id="pages-section" class="admin-section" style="display:none;">
+                <h3>Pages</h3>
+                <p>Page management options will be displayed here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Register</h2>
+            <form id="registerForm">
+                <form action="submit_item.php" method="POST">
+                    <input type="text" name="itemName" placeholder="Item Name" required>
+                    <input type="text" name="category" placeholder="Category" required>
+                    <input type="text" name="location" placeholder="Location" required>
+                    <button type="submit">Submit</button>
+                </form>
+                
+
+                <div class="form-group">
+                    <label for="registerName">Name:</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">Phone Number:</label>
+                    <input type="tel" id="registerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('adminLoginModal')">&times;</span>
+            <h2>Admin Login</h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminUsername">Username:</label>
+                    <input type="text" id="adminUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password:</label>
+                    <input type="password" id="adminPassword" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize items array from localStorage
+        let items = JSON.parse(localStorage.getItem('lostFoundItems')) || [];
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let admins = JSON.parse(localStorage.getItem('admins')) || [
+            {
+                admin_id: 1,
+                username: 'admin',
+                password_hash: 'admin123', // In a real app, this would be hashed
+                role: 'Super Admin'
+            }
+        ];
+        
+        // Add login history tracking
+        let loginHistory = JSON.parse(localStorage.getItem('loginHistory')) || [];
+        
+        // Current user
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        
+        // Display items when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            displayItems();
+            updateUserInterface();
+            
+            // Show/hide proof questions based on item type
+            document.getElementById('type').addEventListener('change', function() {
+                const proofQuestionsGroup = document.getElementById('proofQuestionsGroup');
+                if (this.value === 'found') {
+                    proofQuestionsGroup.style.display = 'block';
+                } else {
+                    proofQuestionsGroup.style.display = 'none';
+                }
+            });
+            
+            // Add search functionality for admin tables
+            if (document.getElementById('userSearchInput')) {
+                document.getElementById('userSearchInput').addEventListener('input', function() {
+                    filterAdminTable('usersTable', this.value);
+                });
+            }
+        });
+        
+        // Update UI based on login status
+        function updateUserInterface() {
+            const loginRegisterDiv = document.querySelector('.login-register');
+            const adminDashboard = document.getElementById('adminDashboard');
+            const mainContainer = document.querySelector('.container:not(header .container)');
+            
+            if (currentUser) {
+                // Check if user is admin
+                const isAdmin = currentUser.admin_id !== undefined;
+                
+                if (isAdmin) {
+                    // Show admin dashboard and hide main content
+                    if (adminDashboard) {
+                        adminDashboard.style.display = 'block';
+                        if (mainContainer) mainContainer.style.display = 'none';
+                        document.querySelector('header').style.display = 'none';
+                        
+                        // Update admin name in dashboard
+                        document.getElementById('adminUserName').textContent = currentUser.username;
+                        document.getElementById('adminName').textContent = currentUser.username;
+                        
+                        // Populate admin dashboard with data
+                        populateAdminDashboard();
+                    }
+                } else {
+                    // Regular user is logged in
+                    if (adminDashboard) adminDashboard.style.display = 'none';
+                    if (mainContainer) mainContainer.style.display = 'block';
+                    document.querySelector('header').style.display = 'block';
+                    
+                    loginRegisterDiv.innerHTML = `
+                        <div class="user-info" style="display: block;">
+                            <p>Welcome, ${currentUser.name}</p>
+                        </div>
+                        <button onclick="logout()">Logout</button>
+                        <button onclick="showAdminLogin()">Admin</button>
+                    `;
+                }
+            } else {
+                // User is not logged in
+                if (adminDashboard) adminDashboard.style.display = 'none';
+                if (mainContainer) mainContainer.style.display = 'block';
+                document.querySelector('header').style.display = 'block';
+                
+                loginRegisterDiv.innerHTML = `
+                    <button onclick="showLoginModal()">Login</button>
+                    <button onclick="showRegisterModal()">Register</button>
+                    <button onclick="showAdminLogin()">Admin</button>
+                `;
+            }
+        }
+        
+        // Populate admin dashboard with data
+        function populateAdminDashboard() {
+            // Update dashboard stats
+            const lostItems = items.filter(item => item.type === 'lost');
+            const foundItems = items.filter(item => item.type === 'found');
+            const resolvedItems = items.filter(item => item.status === 'Resolved' || item.status === 'Returned');
+            
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalLost').textContent = lostItems.length;
+            document.getElementById('totalFound').textContent = foundItems.length;
+            document.getElementById('totalResolved').textContent = resolvedItems.length;
+            
+            // Populate users table
+            const usersTable = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
+            usersTable.innerHTML = '';
+            
+            users.forEach((user, index) => {
+                const registrationDate = user.registrationDate ? new Date(user.registrationDate).toLocaleString() : 'N/A';
+                const row = usersTable.insertRow();
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${user.name}</td>
+                    <td>${user.phone_number}</td>
+                    <td>${registrationDate}</td>
+                    <td class="action-buttons">
+                        <button class="view-btn" onclick="viewUser(${user.user_id})">View</button>
+                        <button class="edit-btn" onclick="editUser(${user.user_id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteUser(${user.user_id})">Delete</button>
+                    </td>
+                `;
+            });
+            
+            // Populate lost items table
+            const lostItemsTable = document.getElementById('lostItemsTable').getElementsByTagName('tbody')[0];
+            lostItemsTable.innerHTML = '';
+            
+            lostItems.forEach(item => {
+                const user = users.find(u => u.user_id === item.userId) || { name: 'Unknown' };
+                const row = lostItemsTable.insertRow();
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${user.name}</td>
+                    <td>${item.itemName}</td>
+                    <td>${item.category}</td>
+                    <td>${item.location}</td>
+                    <td>${item.date}</td>
+                    <td>${item.status}</td>
+                    <td class="action-buttons">
+                        <button class="view-btn" onclick="viewItem(${item.id})">View</button>
+                        <button class="edit-btn" onclick="editItem(${item.id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">Delete</button>
+                    </td>
+                `;
+            });
+            
+            // Populate found items table
+            const foundItemsTable = document.getElementById('foundItemsTable').getElementsByTagName('tbody')[0];
+            foundItemsTable.innerHTML = '';
+            
+            foundItems.forEach(item => {
+                const user = users.find(u => u.user_id === item.userId) || { name: 'Unknown' };
+                const row = foundItemsTable.insertRow();
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${user.name}</td>
+                    <td>${item.itemName}</td>
+                    <td>${item.category}</td>
+                    <td>${item.location}</td>
+                    <td>${item.date}</td>
+                    <td>${item.status}</td>
+                    <td class="action-buttons">
+                        <button class="view-btn" onclick="viewItem(${item.id})">View</button>
+                        <button class="edit-btn" onclick="editItem(${item.id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+        
+        // Show admin tab
+        function showAdminTab(tabName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.admin-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            document.getElementById(`${tabName}-section`).style.display = 'block';
+            
+            // Update active menu item
+            const menuItems = document.querySelectorAll('.admin-menu li');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.toLowerCase().includes(tabName.toLowerCase())) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Filter admin table based on search input
+        function filterAdminTable(tableId, searchText) {
+            const table = document.getElementById(tableId);
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            searchText = searchText.toLowerCase();
+            
+            for (let i = 0; i < rows.length; i++) {
+                let found = false;
+                const cells = rows[i].getElementsByTagName('td');
+                
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.indexOf(searchText) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+        
+        // User management functions
+        function viewUser(userId) {
+            const user = users.find(u => u.user_id === userId);
+            if (user) {
+                alert(`User Details:\nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone_number}\nTrust Score: ${user.trust_score}\nVerified: ${user.is_verified ? 'Yes' : 'No'}`);
+            }
+        }
+        
+        function editUser(userId) {
+            const user = users.find(u => u.user_id === userId);
+            if (user) {
+                // In a real app, this would open a form to edit the user
+                alert(`Edit user: ${user.name}`);
+            }
+        }
+        
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                users = users.filter(u => u.user_id !== userId);
+                localStorage.setItem('users', JSON.stringify(users));
+                populateAdminDashboard();
+                alert('User deleted successfully');
+            }
+        }
+        
+        // Item management functions
+        function viewItem(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (item) {
+                alert(`Item Details:\nName: ${item.itemName}\nCategory: ${item.category}\nLocation: ${item.location}\nDate: ${item.date}\nDescription: ${item.description}\nStatus: ${item.status}`);
+            }
+        }
+        
+        function editItem(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (item) {
+                // In a real app, this would open a form to edit the item
+                alert(`Edit item: ${item.itemName}`);
+            }
+        }
+        
+        function deleteItem(itemId) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                items = items.filter(i => i.id !== itemId);
+                localStorage.setItem('lostFoundItems', JSON.stringify(items));
+                populateAdminDashboard();
+                alert('Item deleted successfully');
+            }
+        }
+        
+        // Handle form submission
+        document.getElementById('itemForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('Please login to report an item');
+                showLoginModal();
+                return;
+            }
+            
+            // Get form values
+            const itemName = document.getElementById('itemName').value;
+            const category = document.getElementById('category').value;
+            const location = document.getElementById('location').value;
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const date = document.getElementById('date').value;
+            const description = document.getElementById('description').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const proofQuestions = document.getElementById('proofQuestions').value;
+            const contactInfo = document.getElementById('contactInfo').value;
+            const type = document.getElementById('type').value;
+            
+            // Create new item object
+            const newItem = {
+                id: Date.now(),
+                itemName,
+                category,
+                location,
+                latitude: latitude || null,
+                longitude: longitude || null,
+                date,
+                description,
+                imageUrl: imageUrl || '',
+                proofQuestions: type === 'found' ? proofQuestions : '',
+                contactInfo,
+                type,
+                status: 'Open',
+                createdAt: new Date().toISOString(),
+                userId: currentUser.user_id || currentUser.admin_id
+            };
+            
+            // Add to items array
+            items.unshift(newItem);
+            
+            // Save to localStorage
+            localStorage.setItem('lostFoundItems', JSON.stringify(items));
+            
+            // Reset form
+            this.reset();
+            
+            // Update display
+            displayItems();
+            
+            // Show success message
+            alert('Report submitted successfully!');
+        });
+        
+        // Display items in the grid
+        function displayItems() {
+            const itemsGrid = document.getElementById('itemsGrid');
+            
+            // Clear current items
+            itemsGrid.innerHTML = '';
+            
+            if (items.length === 0) {
+                itemsGrid.innerHTML = '<p>No items reported yet.</p>';
+                return;
+            }
+            
+            // Add each item to the grid
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = `item-card ${item.type}`;
+                itemCard.dataset.type = item.type;
+                
+                let cardContent = `
+                    <h3>${item.itemName}</h3>
+                    <p><strong>Status:</strong> ${item.type.toUpperCase()} - ${item.status}</p>
+                    <p><strong>Category:</strong> ${item.category}</p>
+                    <p><strong>Location:</strong> ${item.location}</p>
+                `;
+                
+                if (item.latitude && item.longitude) {
+                    cardContent += `<p><strong>Coordinates:</strong> ${item.latitude}, ${item.longitude}</p>`;
+                }
+                
+                cardContent += `
+                    <p><strong>Date:</strong> ${item.date}</p>
+                    <p><strong>Description:</strong> ${item.description}</p>
+                `;
+                
+                if (item.imageUrl) {
+                    cardContent += `<p><img src="${item.imageUrl}" alt="${item.itemName}" style="max-width: 100%; margin-top: 10px;"></p>`;
+                }
+                
+                cardContent += `<p><strong>Contact:</strong> ${item.contactInfo}</p>`;
+                
+                if (item.type === 'found' && item.proofQuestions) {
+                    cardContent += `<p><strong>Proof Required:</strong> Yes</p>`;
+                }
+                
+                itemCard.innerHTML = cardContent;
+                
+                itemsGrid.appendChild(itemCard);
+            });
+        }
+        
+        // Filter items by type
+        function filterItems(type) {
+            const cards = document.getElementsByClassName('item-card');
+            const buttons = document.querySelectorAll('.items-container .tab-button');
+            
+            // Update active button
+            buttons.forEach(button => {
+                button.classList.remove('active');
+                if (button.textContent.toLowerCase().includes(type)) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Filter items
+            for (let card of cards) {
+                if (type === 'all') {
+                    card.style.display = '';
+                } else {
+                    card.style.display = card.dataset.type === type ? '' : 'none';
+                }
+            }
+        }
+        
+        // Show selected database table
+        function showTable(tableType) {
+            const tables = document.querySelectorAll('.schema-table-container');
+            const buttons = document.querySelectorAll('.schema-container .tab-button');
+            
+            // Hide all tables
+            tables.forEach(table => {
+                table.style.display = 'none';
+            });
+            
+            // Show selected table
+            document.getElementById(`${tableType}-table`).style.display = 'block';
+            
+            // Update active button
+            buttons.forEach(button => {
+                button.classList.remove('active');
+                if (button.textContent.toLowerCase().includes(tableType)) {
+                    button.classList.add('active');
+                }
+            });
+        }
+        
+        // Modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+        
+        function showRegisterModal() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+        
+        function showAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Find user with matching email
+            const user = users.find(u => u.email === email);
+            
+            if (user && user.password_hash === password) { // In a real app, you'd verify the hash
+                // Login successful
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Record login history
+                const loginEntry = {
+                    userId: user.user_id,
+                    userName: user.name,
+                    userType: 'User',
+                    timestamp: new Date().toISOString(),
+                    ipAddress: 'Client IP' // In a real app, you'd get the actual IP
+                };
+                loginHistory.unshift(loginEntry);
+                localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
+                
+                closeModal('loginModal');
+                updateUserInterface();
+                alert('Login successful!');
+            } else {
+                // Login failed
+                alert('Invalid email or password');
+            }
+        });
+        
+        // Handle register form submission
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Check if email already exists
+            if (users.some(u => u.email === email)) {
+                alert('Email already registered');
+                return;
+            }
+            
+            // Check if phone already exists
+            if (users.some(u => u.phone_number === phone)) {
+                alert('Phone number already registered');
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                user_id: users.length > 0 ? Math.max(...users.map(u => u.user_id)) + 1 : 1,
+                name,
+                email,
+                phone_number: phone,
+                password_hash: password, // In a real app, this would be hashed
+                trust_score: 5.0,
+                is_verified: false,
+                registrationDate: new Date().toISOString()
+            };
+            
+            // Add to users array
+            users.push(newUser);
+            
+            // Save to localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Login the new user
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Record login history
+            const loginEntry = {
+                userId: newUser.user_id,
+                userName: newUser.name,
+                userType: 'User',
+                timestamp: new Date().toISOString(),
+                ipAddress: 'Client IP' // In a real app, you'd get the actual IP
+            };
+            loginHistory.unshift(loginEntry);
+            localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
+            
+            // Close modal and update UI
+            closeModal('registerModal');
+            updateUserInterface();
+            
+            alert('Registration successful!');
+        });
+        
+        // Handle admin login form submission
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            // Find admin with matching username
+            const admin = admins.find(a => a.username === username);
+            
+            if (admin && admin.password_hash === password) { // In a real app, you'd verify the hash
+                // Login successful
+                currentUser = admin;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Record login history
+                const loginEntry = {
+                    userId: admin.admin_id,
+                    userName: admin.username,
+                    userType: 'Admin',
+                    timestamp: new Date().toISOString(),
+                    ipAddress: 'Client IP' // In a real app, you'd get the actual IP
+                };
+                loginHistory.unshift(loginEntry);
+                localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
+                
+                closeModal('adminLoginModal');
+                updateUserInterface();
+                alert('Admin login successful!');
+            } else {
+                // Login failed
+                alert('Invalid username or password');
+            }
+        });
+        
+        // Logout function
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUserInterface();
+            alert('Logged out successfully');
+        }
+    </script>
+</body>
+</html>
